@@ -159,7 +159,7 @@ LNMP_centos_php(){
 LNMP_ubuntu_enable(){
     systemctl enable nginx
     systemctl enable mysqld
-    systemctl enable php7.0-fpm
+    systemctl enable php-fpm7.0
 }
 
 # CentOS服务添加开机自启动
@@ -173,7 +173,7 @@ LNMP_centos_enable(){
 LNMP_ubuntu_start(){
     systemctl start nginx
     systemctl start mysql
-    systemctl start php7.0-fpm
+    systemctl start php-fpm7.0
 }
 
 # CentOS启动服务
@@ -183,12 +183,13 @@ LNMP_centos_start(){
     systemctl start mysqld
 }
 
-# 验证lnmp部署是否成功
+# 验证lnmp部署是否成功,部署失败返回1
 LNMP_check(){
     echo '<?php phpinfo(); ?>' > /usr/share/nginx/html/info.php
     code=$(curl -I -m 10 -o /dev/null -s -w %{http_code} "http://127.0.0.1/info.php")
     if [ "${code}" -ne 200 ]; then
         echo "----------LNMP平台部署失败----------"
+        return 1
     else
         echo "----------LNMP平台部署成功----------"
     fi
@@ -221,10 +222,15 @@ else
 fi
 
 LNMP_check
-echo "--------------------"
-echo "-----MySQL账号密码-----"
-echo "IP: ${ip}"
-echo "端口：3306"
-echo "账号：root"
-echo "密码：1qaz@WSX"
-echo "----------请验证访问：http://${ip}/info.php ----------"
+check=$?
+if [ "${check}" -eq 0 ]; then
+    echo "--------------------"
+    echo "-----MySQL账号密码-----"
+    echo "IP: ${ip}"
+    echo "端口：3306"
+    echo "账号：root"
+    echo "密码：1qaz@WSX"
+    echo "----------请验证访问：http://${ip}/info.php ----------"
+elif [ "${check}" -eq 1 ]; then
+    exit
+fi
