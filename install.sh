@@ -84,7 +84,7 @@ LNMP_centos_remove(){
 }
 
 # Ubuntu安装LNMP环境
-LNMP_centos_install(){
+LNMP_ubuntu_install(){
     apt-get -y install nginx
     apt-get -y install php7.0 php7.0-fpm php7.0-mysql php7.0-common php7.0-mbstring php7.0-gd php7.0-json php7.0-cli php7.0-curl libapache2-mod-php7.0
     sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password password '$mysql_password''
@@ -200,7 +200,7 @@ if [ "${num}" -eq 1 ]; then
     LNMP_ubuntu_init
     LNMP_ubuntu_apt
     LNMP_ubuntu_remove
-    LNMP_centos_install
+    LNMP_ubuntu_install
     LNMP_ubuntu_nginx
     LNMP_ubuntu_php
     LNMP_ubuntu_enable
