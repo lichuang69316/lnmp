@@ -1,10 +1,15 @@
 #!/bin/bash
 
 system=$(awk -F '=' 'NR==3{print $2}' /etc/os-release)
-mysql_passwd = mysqlpass="$(grep 'temporary password' /var/log/mysqld.log | awk '{print $11}')"
 mysql_password='1qaz@WSX'
 workdir=$(dirname "$0")
 ip=$(ifconfig | grep -A1 eth | grep inet | grep -v 127.0.0.1 | grep -v inet6 | awk '{print $2}' | tr -d "addr:")
+
+# 判断执行脚本是否为root用户，非root用户脚本退出
+if [ `id -u` -ne 0 ]; then
+    echo "----------请使用root用户执行脚本----------"
+    exit
+fi
 
 # 判断操作系统,Ubuntu系统返回1，CentOS系统返回2
 LNMP_system(){
@@ -116,6 +121,7 @@ LNMP_centos_nginx(){
 
 # CentOS修改mysql密码
 LNMP_centos_mysql(){
+    mysqlpass="$(grep 'temporary password' /var/log/mysqld.log | awk '{print $11}')"
     mysql --connect-expired-password -uroot -p''$mysqlpass'' -e "alter user 'root'@'localhost' identified by '1qaz@WSX';"
     if [ "$?" -ne 0 ]; then
         echo "-----MySQL密码修改失败-----"
