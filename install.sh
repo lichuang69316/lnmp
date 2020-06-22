@@ -2,7 +2,9 @@
 
 system=$(awk -F '=' 'NR==3{print $2}' /etc/os-release)
 mysql_passwd = mysqlpass="$(grep 'temporary password' /var/log/mysqld.log | awk '{print $11}')"
+mysql_password='1qaz@WSX'
 workdir=$(dirname "$0")
+ip=$(ifconfig | grep -A1 eth | grep inet | grep -v 127.0.0.1 | grep -v inet6 | awk '{print $2}' | tr -d "addr:")
 
 # 判断操作系统,Ubuntu系统返回1，CentOS系统返回2
 LNMP_system(){
@@ -17,7 +19,8 @@ LNMP_system(){
 
 # Ubuntu初始化环境
 LNMP_ubuntu_init(){
-    pass
+    setenforce 0
+    sed -i 's/SELINUX=enforcing/SELINUX=disabled/' /etc/selinux/config
 }
 
 # CentOS初始化环境
@@ -41,6 +44,11 @@ LNMP_centos_rpm(){
     fi
 }
 
+# Ubuntu更新apt源
+LNMP_ubuntu_apt(){
+    apt-get -y update
+}
+
 # CentOS使用yum安装依赖包
 LNMP_centos_yum(){
     yum -y install wget unzip 
@@ -60,9 +68,23 @@ LNMP_centos_yum(){
     fi
 }
 
+# Ubuntu清除旧的包
+LNMP_ubuntu_remove(){
+    apt-get -y remove nginx php-common php* 
+}
+
 # CentOS清除旧的包
 LNMP_centos_remove(){
     yum -y remove nginx php-common php* mariadb*
+}
+
+# Ubuntu安装LNMP环境
+LNMP_centos_install(){
+    apt-get -y install nginx
+    apt-get -y install php7.0 php7.0-fpm php7.0-mysql php7.0-common php7.0-mbstring php7.0-gd php7.0-json php7.0-cli php7.0-curl libapache2-mod-php7.0
+    sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password password '$mysql_password''
+    sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password '$mysql_password''
+    apt-get -y install mysql-server
 }
 
 # CentOS安装LNMP环境
@@ -70,6 +92,16 @@ LNMP_centos_install(){
     yum -y install nginx
     yum -y install php70w php70w-gd php70w-mysql php70w-fpm php70w-mbstring
     yum -y install mysql-community-server
+}
+
+# Ubuntu修改nginx配置文件
+LNMP_ubuntu_nginx(){
+    mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf_bak
+    cp -rf ${workdir}/nginx.conf /etc/nginx/nginx.conf
+    if [ "$?" -ne 0 ]; then
+        echo "-----未找到nginx.conf文件-----"
+        exit
+    fi
 }
 
 # CentOS修改nginx配置文件
@@ -91,6 +123,19 @@ LNMP_centos_mysql(){
     fi
 }
 
+# Ubuntu修改php配置文件
+LNMP_ubuntu_php(){
+    sed -i "s/^post_max_size/;post_max_size/g" /etc/php/7.0/fpm/php.ini
+    sed -i "s/^max_execution_time/;max_execution_time/g" /etc/php/7.0/fpm/php.ini
+    sed -i "s/^max_input_time/;max_input_time/g" /etc/php/7.0/fpm/php.ini
+    sed -i "s/^date.timezone/;date.timezone/g" /etc/php/7.0/fpm/php.ini
+    echo "post_max_size = 16M" >> /etc/php/7.0/fpm/php.ini
+    echo "max_execution_time = 300" >> /etc/php/7.0/fpm/php.ini
+    echo "max_input_time = 300" >> /etc/php/7.0/fpm/php.ini
+    echo "date.timezone = "Asia/Shanghai"" >> /etc/php/7.0/fpm/php.ini
+    echo "extension=php_mbstring.so" >> /etc/php/7.0/fpm/php.ini
+}
+
 # CentOS修改php配置文件
 LNMP_centos_php(){
     sed -i "s/^post_max_size/;post_max_size/g" /etc/php.ini
@@ -104,11 +149,25 @@ LNMP_centos_php(){
     echo "extension=php_mbstring.so" >> /etc/php.ini
 }
 
+# Ubuntu服务添加开机自启动
+LNMP_ubuntu_enable(){
+    systemctl enable nginx
+    systemctl enable mysqld
+    systemctl enable php7.0-fpm
+}
+
 # CentOS服务添加开机自启动
 LNMP_centos_enable(){
     systemctl enable nginx
     systemctl enable mysqld
     systemctl enable php-fpm.service
+}
+
+# Ubuntu启动服务
+LNMP_ubuntu_start(){
+    systemctl start nginx
+    systemctl start mysql
+    systemctl start php7.0-fpm
 }
 
 # CentOS启动服务
@@ -133,7 +192,12 @@ LNMP_system
 num=$?
 if [ "${num}" -eq 1 ]; then
     LNMP_ubuntu_init
-    echo "----------脚本还未完善，目前仅支持Centos系统----------"
+    LNMP_ubuntu_remove
+    LNMP_centos_install
+    LNMP_ubuntu_nginx
+    LNMP_ubuntu_php
+    LNMP_ubuntu_enable
+    LNMP_ubuntu_start
 elif [ "${num}" -eq 2 ]; then
     LNMP_centos_init
     LNMP_centos_rpm
@@ -150,3 +214,10 @@ else
 fi
 
 LNMP_check
+echo "--------------------"
+echo "-----MySQL账号密码-----"
+echo "IP: ${ip}"
+echo "端口：3306"
+echo "账号：root"
+echo "密码：1qaz@WSX"
+echo "----------请验证访问：http://${ip}/info.php ----------"
