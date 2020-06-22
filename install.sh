@@ -198,6 +198,7 @@ LNMP_system
 num=$?
 if [ "${num}" -eq 1 ]; then
     LNMP_ubuntu_init
+    LNMP_ubuntu_apt
     LNMP_ubuntu_remove
     LNMP_centos_install
     LNMP_ubuntu_nginx
