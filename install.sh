@@ -41,7 +41,6 @@ LNMP_centos_init(){
 
 # CentOS安装所需源
 LNMP_centos_rpm(){
-    rpm -ivh https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
     rpm -ivh https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm
 }
 
@@ -62,6 +61,7 @@ LNMP_centos_yum(){
     yum makecache
     yum -y install epel-release yum-utils
     yum -y update
+    rpm -ivh https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
     yum-config-manager --enable rhel-7-server-optional-rpms
     if [ "$?" -ne 0 ]; then
         echo "----------安装已经更新包失败，可能是网络或者本地不能使用yum的原因----------"
