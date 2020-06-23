@@ -107,8 +107,8 @@ LNMP_ubuntu_nginx(){
 
 # CentOS修改nginx配置文件
 LNMP_centos_nginx(){
-    mv /etc/nginx/conf/nginx.conf /etc/nginx/conf/nginx.conf_bak
-    cp -rf ${workdir}/nginx.conf /etc/nginx/conf/nginx.conf
+    mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf_bak
+    cp -rf ${workdir}/nginx.conf /etc/nginx/nginx.conf
     if [ "$?" -ne 0 ]; then
         echo "-----未找到nginx.conf文件-----"
         exit
