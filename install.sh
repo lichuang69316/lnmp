@@ -41,12 +41,8 @@ LNMP_centos_init(){
 
 # CentOS安装所需源
 LNMP_centos_rpm(){
-    rpm -Uvh https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
+    rpm -ivh https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
     rpm -ivh https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm
-    if [ "$?" -ne 0 ]; then
-        echo "----------安装yum源失败，可能是网络的原因----------"
-        exit
-    fi
 }
 
 # Ubuntu更新apt源
