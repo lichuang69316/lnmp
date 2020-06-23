@@ -157,8 +157,7 @@ LNMP_centos_php(){
 # Ubuntu服务添加开机自启动
 LNMP_ubuntu_enable(){
     systemctl enable nginx
-    systemctl enable mysqld
-    systemctl enable php-fpm7.0
+    systemctl enable mysql
 }
 
 # CentOS服务添加开机自启动
