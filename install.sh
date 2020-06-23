@@ -116,7 +116,7 @@ LNMP_centos_nginx(){
 }
 
 # CentOS修改mysql密码
-LNMP_centos_mysql(){
+LNMP_CentOS_mysql(){
     mysqlpass="$(grep 'temporary password' /var/log/mysqld.log | awk '{print $11}')"
     mysql --connect-expired-password -uroot -p''$mysqlpass'' -e "alter user 'root'@'localhost' identified by '1qaz@WSX';"
     if [ "$?" -ne 0 ]; then
@@ -214,10 +214,10 @@ elif [ "${num}" -eq 2 ]; then
     LNMP_centos_remove
     LNMP_centos_install
     LNMP_centos_nginx
-    LNMP_centos_mysql
     LNMP_centos_php
     LNMP_centos_enable
     LNMP_centos_start
+    LNMP_CentOS_mysql
 else
     echo "-----程序结束-----"
 fi
