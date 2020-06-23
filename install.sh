@@ -131,12 +131,12 @@ LNMP_ubuntu_php(){
     sed -i "s/^max_execution_time/;max_execution_time/g" /etc/php/7.0/fpm/php.ini
     sed -i "s/^max_input_time/;max_input_time/g" /etc/php/7.0/fpm/php.ini
     sed -i "s/^date.timezone/;date.timezone/g" /etc/php/7.0/fpm/php.ini
-    sed -i "s/^listen/;listen/g" /etc/php/7.0/fpm/php.ini
+    sed -i "s/^listen =/;listen =/g" /etc/php/7.0/fpm/pool.d/www.conf
     echo "post_max_size = 16M" >> /etc/php/7.0/fpm/php.ini
     echo "max_execution_time = 300" >> /etc/php/7.0/fpm/php.ini
     echo "max_input_time = 300" >> /etc/php/7.0/fpm/php.ini
     echo "date.timezone = "Asia/Shanghai"" >> /etc/php/7.0/fpm/php.ini
-    echo "listen = 0.0.0.0:9000" >> /etc/php/7.0/fpm/php.ini
+    echo "listen = 127.0.0.1:9000" >> /etc/php/7.0/fpm/pool.d/www.conf
 }
 
 # CentOS修改php配置文件
@@ -158,6 +158,7 @@ LNMP_centos_php(){
 LNMP_ubuntu_enable(){
     systemctl enable nginx
     systemctl enable mysql
+    systemctl enable php7.0-fpm
 }
 
 # CentOS服务添加开机自启动
@@ -171,7 +172,7 @@ LNMP_centos_enable(){
 LNMP_ubuntu_start(){
     systemctl start nginx
     systemctl start mysql
-    service php7.0-fpm start
+    systemctl start php7.0-fpm
     systemctl restart nginx
 }
 
