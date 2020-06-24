@@ -33,6 +33,7 @@ LNMP_centos_init(){
     systemctl stop firewalld
     if [ "$?" -ne 0 ]; then
         echo "----------本脚本不支持CentOS6以下的版本（包括CentOS6系列）----------"
+        exit
     fi
     systemctl disable firewalld
     setenforce 0
