@@ -54,7 +54,8 @@ LNMP_ubuntu_apt(){
 LNMP_centos_yum(){
     yum -y install wget unzip 
     if [ -f '/etc/yum.repos.d/CentOS-Base.repo' ]; then
-        cp /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo_bak
+        mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo_bak
+        wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo
     else
         wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo
     fi
